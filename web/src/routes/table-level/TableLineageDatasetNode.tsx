@@ -41,6 +41,11 @@ interface TableLineageDatasetNodeProps {
 const ICON_SIZE = 12
 const COMPACT_HEIGHT = 24
 
+function datasetLabel(namespace: string): string {
+  if (namespace.startsWith('kafka://') || namespace.startsWith('kafka-')) return 'TOPIC'
+  return 'DATASET'
+}
+
 const TableLineageDatasetNode = ({
   node,
   dataset,
@@ -210,7 +215,7 @@ const TableLineageDatasetNode = ({
             onClick={handleClick}
             cursor={'pointer'}
           >
-            DATASET
+            {datasetLabel(node.data.dataset.namespace)}
           </text>
           <text fontSize='8' fill={'white'} x={28} y={20} cursor={'pointer'} onClick={handleClick}>
             {truncateText(node.data.dataset.name, 15)}

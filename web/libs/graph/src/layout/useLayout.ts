@@ -163,9 +163,7 @@ export const useLayout = <K, D>({
   /* EFFECTS */
   // Render
   useEffect(() => {
-    const elk = new ELK({
-      workerUrl: webWorkerUrl,
-    })
+    const elk = new ELK({})
 
     elk
       .layout(elkInput)

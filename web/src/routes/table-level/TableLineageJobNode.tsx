@@ -6,7 +6,13 @@ import { LineageJob } from '../../types/lineage'
 import { PositionedNode } from '../../../libs/graph'
 import { TableLineageJobNodeData } from './nodes'
 import { connect } from 'react-redux'
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
+import { faBolt } from '@fortawesome/free-solid-svg-icons/faBolt'
+import { faCode } from '@fortawesome/free-solid-svg-icons/faCode'
 import { faCog } from '@fortawesome/free-solid-svg-icons/faCog'
+import { faDatabase } from '@fortawesome/free-solid-svg-icons/faDatabase'
+import { faPlug } from '@fortawesome/free-solid-svg-icons/faPlug'
+import { faUsers } from '@fortawesome/free-solid-svg-icons/faUsers'
 import { formatUpdatedAt } from '../../helpers'
 import { runStateColor } from '../../helpers/nodes'
 import { theme } from '../../helpers/theme'
@@ -28,10 +34,25 @@ interface TableLineageJobNodeProps {
 
 const ICON_SIZE = 12
 
+interface JobTypeInfo {
+  label: string
+  icon: IconDefinition
+}
+
+function jobTypeInfo(namespace: string): JobTypeInfo {
+  if (namespace.startsWith('kafka-connect://')) return { label: 'CONNECTOR', icon: faPlug }
+  if (namespace.startsWith('flink://')) return { label: 'FLINK', icon: faBolt }
+  if (namespace.startsWith('kafka-consumer-group://')) return { label: 'CONSUMER', icon: faUsers }
+  if (namespace.startsWith('ksqldb://')) return { label: 'KSQLDB', icon: faDatabase }
+  if (namespace.startsWith('kafka-producer://')) return { label: 'PRODUCER', icon: faCode }
+  return { label: 'JOB', icon: faCog }
+}
+
 const TableLineageJobNode = ({ node }: TableLineageJobNodeProps & StateProps) => {
   const navigate = useNavigate()
   const { name, namespace } = useParams()
   const isSelected = name === node.data.job.name && namespace === node.data.job.namespace
+  const typeInfo = jobTypeInfo(node.data.job.namespace)
   const handleClick = () => {
     navigate(
       `/lineage/job/${encodeURIComponent(node.data.job.namespace)}/${encodeURIComponent(
@@ -129,8 +150,8 @@ const TableLineageJobNode = ({ node }: TableLineageJobNodeProps & StateProps) =>
       />
       <FontAwesomeIcon
         aria-hidden={'true'}
-        title={'Job'}
-        icon={faCog}
+        title={typeInfo.label}
+        icon={typeInfo.icon}
         width={ICON_SIZE}
         height={ICON_SIZE}
         x={6}
@@ -149,7 +170,7 @@ const TableLineageJobNode = ({ node }: TableLineageJobNodeProps & StateProps) =>
             onClick={handleClick}
             cursor={'pointer'}
           >
-            JOB
+            {typeInfo.label}
           </text>
           <text fontSize='8' fill={'white'} x={28} y={20} onClick={handleClick} cursor={'pointer'}>
             {truncateText(node.data.job.name, 16)}

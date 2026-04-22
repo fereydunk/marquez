@@ -21,7 +21,7 @@ module.exports = {
         }]
       },
       {
-        test: /\.(png|jpe?g|gif|svg)(\?v=\d+\.\d+\.\d+)?$/,
+        test: /\.(png|jpe?g|gif)(\?v=\d+\.\d+\.\d+)?$/,
         loader: 'file-loader'
       },
       {
@@ -43,20 +43,28 @@ module.exports = {
         test: /\.ico$/,
         loader: 'file-loader'
       },
+      // SVGs imported with ?url query → return a URL string (for use in <img src>)
       {
         test: /\.svg$/,
-        use: ['@svgr/webpack'], // Use the @svgr/webpack loader
-        issuer: {
-          and: [/\.(js|ts|jsx|tsx)$/], // Only apply this rule to JS/TS files
-        },
-        type: 'javascript/auto', // Prevent Webpack's asset module from interfering
+        resourceQuery: /url/,
+        type: 'asset/resource',
       },
-      // Fallback rule for SVGs imported elsewhere (e.g., in CSS)
+      // SVGs imported from JS/TS without ?url → React components via SVGR
+      {
+        test: /\.svg$/,
+        resourceQuery: { not: [/url/] },
+        use: [{ loader: '@svgr/webpack', options: { exportType: 'named' } }],
+        issuer: {
+          and: [/\.(js|ts|jsx|tsx)$/],
+        },
+        type: 'javascript/auto',
+      },
+      // SVGs imported from CSS → URL string
       {
         test: /\.svg$/,
         type: 'asset/resource',
         issuer: {
-          and: [/\.(css|sass|scss|less)$/], // Only apply this rule to style files
+          and: [/\.(css|sass|scss|less)$/],
         },
       },
     ]

@@ -25,6 +25,9 @@ const webpackDev = {
       index: './index.html',
       disableDotRule: true
     },
+    client: {
+      overlay: { errors: true, warnings: false },
+    },
     proxy: {
       '/api': {
         target: `http://${process.env.MARQUEZ_HOST || 'localhost'}:${process.env.MARQUEZ_PORT || 5000}/`,
